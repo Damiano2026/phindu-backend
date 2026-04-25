@@ -132,4 +132,29 @@ app.post('/ussd', async (req, res) => {
 
 // ================= PORT =================
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Create table automatically on startup
+async function initDB() {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        phone VARCHAR(20) UNIQUE,
+        name VARCHAR(100),
+        pin VARCHAR(10),
+        subscribed BOOLEAN DEFAULT false,
+        attempts INT DEFAULT 0,
+        locked BOOLEAN DEFAULT false
+      );
+    `);
+    console.log("Users table ready");
+  } catch (err) {
+    console.error("DB Init Error:", err);
+  }
+}
+
+// Start server AFTER DB init
+const PORT = process.env.PORT || 3000;
+
+initDB().then(() => {
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+});
