@@ -7,10 +7,14 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 // ================= DATABASE =================
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgresql://localhost/phindu'
-});
+const { Pool } = require('pg');
 
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
+});
 // ================= CONFIG =================
 const BUSINESS_NAME = 'PHINDU';
 const SUPPORT_CONTACT = process.env.SUPPORT_CONTACT || '0990000000';
